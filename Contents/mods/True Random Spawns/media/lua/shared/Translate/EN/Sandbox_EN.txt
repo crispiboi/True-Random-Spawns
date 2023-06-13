@@ -1,0 +1,12 @@
+Sandbox_EN = {
+    Sandbox_TRS = "True Random Spawns",
+
+    Sandbox_TRS_SelectionFilter = "True Random Spawns Option",
+    Sandbox_TRS_SelectionValues_option1 = "In a Building",
+    Sandbox_TRS_SelectionValues_option2 = "Near Civilization"
+    Sandbox_TRS_SelectionValues_option3 = "Near a Road",
+    Sandbox_TRS_SelectionValues_option4 = "Wildnerness Near a Camp",
+    Sandbox_TRS_SelectionValues_option5 = "Wildnerness Deep",
+    Sandbox_TRS_SelectionValues_option6 = "Anywhere",
+
+}
