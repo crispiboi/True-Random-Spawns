@@ -14,7 +14,7 @@ cellList = {};
 --remove zombies within 8 tiles
 
 
-
+--read from sandbox settings
 local function intializeTrueRandomSpawnSettings()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -55,6 +55,7 @@ local function intializeTrueRandomSpawnSettings()
 
 end 
 
+--filters spawn cell selection table based on settings
 local function filterCellPickList(filterTable)
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -108,6 +109,7 @@ local function calcTableSize(table)
     return count;
 end 
 
+--sets up and calls filter cell pick list for further use
 local function initializeCellPickList()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -125,6 +127,7 @@ local function initializeCellPickList()
     print("cellListInitialized", pillowmod.cellListInitialized);
 end 
 
+
 local function displayCellPick()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -136,7 +139,8 @@ local function displayCellPick()
     print("----------------CELL PICK DISPLAY----------------");
 end 
 
-
+--Floor draw check function gets called when the floor is drawn meaning the map is current 
+--enough for the game to determine the player's current square
 local function FloorDrawCheck()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -145,6 +149,7 @@ local function FloorDrawCheck()
     end
 end 
 
+--reset the floor draw chance, used after teleporting
 local function ResetFloorDrawCheck()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -334,7 +339,7 @@ local function stopTicks()
 end 
 
 
-
+--picks a spawn point based on the filtered cell pick list
 local function pickSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -352,6 +357,7 @@ local function pickSpawnTarget()
     print("picked Spawn Target complete");
 end
 
+--OLD validate spawn function, deprecated.
 local function validateSpawn()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -425,6 +431,8 @@ local function validateSpawn()
 
 end
 
+--adjust outdoor spawn, called when it is on water or in a bad room
+--function sweeps back and forth
 local function adjustOutdoorSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -442,6 +450,8 @@ local function adjustOutdoorSpawnTarget()
     Events.OnPlayerUpdate.Remove(adjustOutdoorSpawnTarget);
 end
 
+--adjust indoor spawn, checking if there are buildings nearby or not
+--they are are not just pick a new spawn target
 local function adjustIndoorSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -459,6 +469,7 @@ local function adjustIndoorSpawnTarget()
 
 end
 
+--handles adjustments to spawn location
 local function adjustSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -487,7 +498,15 @@ local function adjustSpawnTarget()
 end 
 
 
-
+--valid spawn check function, this is the current one. 
+--toggles valid spawn in various cases
+--LOGIC
+--1. player square is not loaded, invalid spawn (mostly to avoid spamming errors)
+--2. player does not care about spawning in a building, but spawns on water, inalid spawn
+--3. player does not care about spawning in a building, but has, check for valid room defintion
+--3.a current ones found in testing "empty" and "traincar" are problematic
+--4. player wants to spawn in a building, and is in on. Check for valid room based on 3a.
+--5. anything else is considered invalid
 local function checkValidSpawn()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -525,6 +544,7 @@ local function checkValidSpawn()
 
 end
 
+--cleans up all of the helper functions running to reduce lag
 local function validSpawnCleanup()
         print("process valid spawn cleanup functions");
         local player = getPlayer();
@@ -543,6 +563,12 @@ local function validSpawnCleanup()
         Events.OnPlayerUpdate.Remove(validSpawnCleanup)
 end 
 
+--event processor, relies on tick function running
+--processing order 
+--1. check for a valid spawn being true, if so, start clean up 
+--2. call for check valid spawn
+--3. call for adjusting an invalid spawn
+--4. call for teleport function to adjusted spawn point
 local function trueRandomSpawnsEventProcessor()
     --first spawn requires tp , force first spawn with init validspawn false
     --validate spot
@@ -556,6 +582,7 @@ local function trueRandomSpawnsEventProcessor()
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
         Events.OnTick.Remove(processTicks);
         Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
+        --06-14-2023 this logic seems incorrect but works. Maybe need to add the function instead of remove
         Events.OnPlayerUpdate.Remove(validSpawnCleanup);
     elseif pillowmod.tick  > 0 and pillowmod.tick == 3 then
         print("TRS event processor : check valid spawn");
@@ -572,7 +599,7 @@ local function trueRandomSpawnsEventProcessor()
 end
 
 
-
+--initiate the mod itself, sets up the actual settings which feed into the filtering functions
 local function initializeTrueRandomSpawn()
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -628,14 +655,6 @@ local function debugSpawn(key)
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
     else end
 end
-
-local function testOnPostFloorLayerDraw()
-
-    print("TRS testOnPostFloorLayerDraw");
-end 
-
-
-
 
 
 --Events
