@@ -1,7 +1,8 @@
-description=trueRandomSpawn
 id=trueRandomSpawn
-name=trueRandomSpawn
+name=True Random Spawns
 poster=poster.png
-description=spawn at north of map
+description=True Random Spawns ALPHA v1 release
+description=Dynamically generated spawn locations when creating a new game.
+description=Default to spawn at a place close to civilization, use sandbox settings to change
 modversion=1
 pzversion=41.78

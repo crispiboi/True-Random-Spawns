@@ -4,7 +4,7 @@ option TRS.optionSelection
 {
     type = enum,
     numValues = 6,
-    default = 2,
+    default = 1,
     page = TRS,
     translation = TRS_SelectionFilter,
     valueTranslation = TRS_SelectionValues,
