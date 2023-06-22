@@ -18,81 +18,83 @@ cellList = {};
 local function intializeTrueRandomSpawnSettings()
     local player = getPlayer();
     local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData()
     --pillowmod.validSpawn = false; 
-    pillowmod.optionInBuilding = false;
-    pillowmod.optionNearCiv = false;
-    pillowmod.optionNearRoad = false;
-    pillowmod.optionWildCamp = false;
-    pillowmod.optionWildDeep = false;
-    pillowmod.optionAnywhere = false;
+    worldModData.optionInBuilding = false;
+    worldModData.optionNearCiv = false;
+    worldModData.optionNearRoad = false;
+    worldModData.optionWildCamp = false;
+    worldModData.optionWildDeep = false;
+    worldModData.optionAnywhere = false;
 
     pillowmod.optionSelection = SandboxVars.TRS.optionSelection;
     print("true random spawns sandbox option selection :" ,pillowmod.optionSelection);
 
     if  SandboxVars.TRS.optionSelection == 1 then
-        pillowmod.optionInBuilding = true;
+        worldModData.optionInBuilding = true;
     elseif SandboxVars.TRS.optionSelection == 2 then
-        pillowmod.optionNearCiv = true;
+        worldModData.optionNearCiv = true;
     elseif SandboxVars.TRS.optionSelection == 3 then
-        pillowmod.optionNearRoad = true;
+        worldModData.optionNearRoad = true;
     elseif SandboxVars.TRS.optionSelection == 4 then 
-        pillowmod.optionWildCamp = true;
+        worldModData.optionWildCamp = true;
     elseif SandboxVars.TRS.optionSelection == 5 then
-        pillowmod.optionWildDeep = true;
+        worldModData.optionWildDeep = true;
     else
-        pillowmod.optionAnywhere = true;
+        worldModData.optionAnywhere = true;
     end 
 
     print("===============true random spawns debug options===============")
-    print("optionInBuilding = ",  pillowmod.optionInBuilding);
-    print("optionNearCiv = ", pillowmod.optionNearCiv);
-    print("optionNearRoad = ", pillowmod.optionNearRoad);
-    print("optionWildCamp = ", pillowmod.optionWildCamp);
-    print("optionWildDeep = ", pillowmod.optionWildDeep);
-    print("optionAnywhere = ", pillowmod.optionAnywhere);
+    print("optionInBuilding = ",  worldModData.optionInBuilding);
+    print("optionNearCiv = ", worldModData.optionNearCiv);
+    print("optionNearRoad = ", worldModData.optionNearRoad);
+    print("optionWildCamp = ", worldModData.optionWildCamp);
+    print("optionWildDeep = ", worldModData.optionWildDeep);
+    print("optionAnywhere = ", worldModData.optionAnywhere);
 
-    pillowmod.settingsApplied = true;
+    worldModData.settingsApplied = true;
 
 end 
 
 --filters spawn cell selection table based on settings
 local function filterCellPickList(filterTable)
-    local player = getPlayer();
-    local pillowmod = player:getModData();
+    --local player = getPlayer();
+    --local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData()
     local i = 1;
 
     while i <= #filterTable do
         --handles in building or near civ, building loop is later
         --nearciv = 1, 0 no 
-        if (pillowmod.optionInBuilding == true  or pillowmod.optionNearCiv == true ) 
+        if (worldModData.optionInBuilding == true  or worldModData.optionNearCiv == true ) 
             and filterTable[i].nearCiv ~= 1 then
             --print("removing record from pick list " .. filterTable[i].xcell .. ",".. filterTable[i].ycell );
             print("removing:")
-            print("cell xy:" .. pillowmod.cellList[i].xcell .. "," .. pillowmod.cellList[i].ycell);
-            print("nearRoad:" .. pillowmod.cellList[i].nearRoad .. " ,  nearCiv:" .. pillowmod.cellList[i].nearCiv .. ", civDist:".. pillowmod.cellList[i].civDist);
+            print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+            print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
             table.remove(filterTable, i);
         --handles near road 
-        elseif pillowmod.optionNearRoad == true and filterTable[i].nearRoad == 0 then
+        elseif worldModData.optionNearRoad == true and filterTable[i].nearRoad == 0 then
             --print("removing record from pick list " .. filterTable[i].xcell .. ",".. filterTable[i].ycell );
             print("removing:")
-            print("cell xy:" .. pillowmod.cellList[i].xcell .. "," .. pillowmod.cellList[i].ycell);
-            print("nearRoad:" .. pillowmod.cellList[i].nearRoad .. " ,  nearCiv:" .. pillowmod.cellList[i].nearCiv .. ", civDist:".. pillowmod.cellList[i].civDist);
+            print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+            print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
             table.remove(filterTable, i);
         --handles near camp
-        elseif pillowmod.optionWildCamp == true 
+        elseif worldModData.optionWildCamp == true 
             and (filterTable[i].poi ~= "Cabin" or filterTable[i].poi ~= "Camp")  then 
             --print("removing record from pick list " .. filterTable[i].xcell .. ",".. filterTable[i].ycell );
             print("removing:")
-            print("cell xy:" .. pillowmod.cellList[i].xcell .. "," .. pillowmod.cellList[i].ycell);
-            print("nearRoad:" .. pillowmod.cellList[i].nearRoad .. " ,  nearCiv:" .. pillowmod.cellList[i].nearCiv .. ", civDist:".. pillowmod.cellList[i].civDist);
+            print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+            print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
             table.remove(filterTable, i);   
         --handles deep woods
-        elseif pillowmod.optionWildDeep == true and filterTable[i].nearRoad == 1 and filterTable[i].civDist <= 3
+        elseif worldModData.optionWildDeep == true and filterTable[i].nearRoad == 1 and filterTable[i].civDist <= 3
             then
             --print("removing record from pick list " .. filterTable[i].xcell .. ",".. filterTable[i].ycell );
             print("removing:")
-            print("cell xy:" .. pillowmod.cellList[i].xcell .. "," .. pillowmod.cellList[i].ycell);
-            print("nearRoad:" .. pillowmod.cellList[i].nearRoad .. " ,  nearCiv:" .. pillowmod.cellList[i].nearCiv .. ", civDist:".. pillowmod.cellList[i].civDist);         
+            print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+            print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);         
             table.remove(filterTable, i);               
         else
             i = i + 1;
@@ -111,31 +113,33 @@ end
 
 --sets up and calls filter cell pick list for further use
 local function initializeCellPickList()
-    local player = getPlayer();
-    local pillowmod = player:getModData();
+    --local player = getPlayer();
+    --local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData()
 
-    pillowmod.cellList = cellPickList();
+    worldModData.cellList = cellPickList();
     --cellList = cellPickList();
     print("init cell list size:");
-    print(calcTableSize(pillowmod.cellList));
+    print(calcTableSize(worldModData.cellList));
 
-    pillowmod.cellList = filterCellPickList(pillowmod.cellList);
+    worldModData.cellList = filterCellPickList(worldModData.cellList);
     print("post filter cell list size:");
 
-    print(calcTableSize(pillowmod.cellList));
-    pillowmod.cellListInitialized = true;
-    print("cellListInitialized", pillowmod.cellListInitialized);
+    print(calcTableSize(worldModData.cellList));
+    worldModData.cellListInitialized = true;
+    print("cellListInitialized", worldModData.cellListInitialized);
 end 
 
 
 local function displayCellPick()
     local player = getPlayer();
     local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData()
 
     local i = pillowmod.cellPickIndex
     print("----------------CELL PICK DISPLAY----------------");
-    print("cell xy:" .. pillowmod.cellList[i].xcell .. "," .. pillowmod.cellList[i].ycell);
-    print("nearRoad:" .. pillowmod.cellList[i].nearRoad .. " ,  nearCiv:" .. pillowmod.cellList[i].nearCiv .. ", civDist:".. pillowmod.cellList[i].civDist);
+    print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+    print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
     print("----------------CELL PICK DISPLAY----------------");
 end 
 
@@ -343,12 +347,13 @@ end
 local function pickSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
-    local cellListLength = calcTableSize(pillowmod.cellList);
+    local worldModData = getGameTime():getModData()
+    local cellListLength = calcTableSize(worldModData.cellList);
 
     pillowmod.cellPickIndex = ZombRand(1,cellListLength);
 
-    local xvalue = pillowmod.cellList[pillowmod.cellPickIndex].xcell;
-    local yvalue = pillowmod.cellList[pillowmod.cellPickIndex].ycell;
+    local xvalue = worldModData.cellList[pillowmod.cellPickIndex].xcell;
+    local yvalue = worldModData.cellList[pillowmod.cellPickIndex].ycell;
 
     displayCellPick();
 
@@ -461,9 +466,12 @@ local function adjustIndoorSpawnTarget()
     else
         print("TRS event processor : adjust spawn target : pick random square in building");
         local targetsq = getSquareInClosestBuilding(player);
-        print("building target x:" .. targetsq:getX() .. ",y:" .. targetsq:getY() );
-        pillowmod.targetXvalue = targetsq:getX();
-        pillowmod.targetYvalue = targetsq:getY();
+        --2023-06-22 add to avoid error spam with this
+        if targetsq ~= nil then
+            print("building target x:" .. targetsq:getX() .. ",y:" .. targetsq:getY() );
+            pillowmod.targetXvalue = targetsq:getX();
+            pillowmod.targetYvalue = targetsq:getY();
+        else end
     end 
     Events.OnPlayerUpdate.Remove(adjustIndoorSpawnTarget);
 
@@ -473,6 +481,7 @@ end
 local function adjustSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData()
     --processing logic
     --1. handle first spawn
     --2. handle retargeting
@@ -485,10 +494,10 @@ local function adjustSpawnTarget()
     elseif pillowmod.spawnCount >= 5 then
         pillowmod.spawnCount = 1;
         pickSpawnTarget();
-    elseif pillowmod.optionInBuilding == true then
+    elseif worldModData.optionInBuilding == true then
         Events.OnPlayerUpdate.Add(adjustIndoorSpawnTarget);
         print("TRS event processor : adjust spawn target : adjust indoor target");
-    elseif pillowmod.optionInBuilding == false then
+    elseif worldModData.optionInBuilding == false then
         print("TRS event processor : adjust spawn target : adjust outdoor target");
         Events.OnPlayerUpdate.Add(adjustOutdoorSpawnTarget);
     else end
@@ -511,9 +520,10 @@ local function checkValidSpawn()
     local player = getPlayer();
     local pillowmod = player:getModData();
     local playersq = player:getCurrentSquare();
+    local worldModData = getGameTime():getModData()
     print("TRS event processor : start check valid spawn function");
     print("TRS Debug: playersq:", playersq)
-    print("TRS Debug: optionInBuilding:", pillowmod.optionInBuilding )
+    print("TRS Debug: optionInBuilding:", worldModData.optionInBuilding )
     print("TRS Debug: isCharacterOutside:", isCharacterOutside(player))
 
 
@@ -521,16 +531,16 @@ local function checkValidSpawn()
         pillowmod.validSpawn = false;
         print("TRS event processor: check valid spawn : player is nil");
     --optionInBuilding false, outside, water check
-    elseif pillowmod.optionInBuilding == false and isWater(playersq) == false then
+    elseif worldModData.optionInBuilding == false and isWater(playersq) == false then
         pillowmod.validSpawn = true;
         print("TRS event processor: check valid spawn : player is outside and not on water");
     --optionInBuilding falsee, inside, valid room check
-    elseif pillowmod.optionInBuilding == false and isCharacterOutside(player) == false then
+    elseif worldModData.optionInBuilding == false and isCharacterOutside(player) == false then
         if hasRoomDef(playersq) == true then
             pillowmod.validSpawn = true;
         print("TRS event processor: check valid spawn : player is inside with valid room defintion");
         else end 
-    elseif pillowmod.optionInBuilding == true and isCharacterOutside(player) == false then 
+    elseif worldModData.optionInBuilding == true and isCharacterOutside(player) == false then 
         if hasRoomDef(playersq) == true then
             pillowmod.validSpawn = true;
         print("TRS event processor: check valid spawn : spawn option in building player is inside with valid room defintion");
@@ -601,11 +611,12 @@ end
 
 --initiate the mod itself, sets up the actual settings which feed into the filtering functions
 local function initializeTrueRandomSpawn()
-    local player = getPlayer();
-    local pillowmod = player:getModData();
+    --local player = getPlayer();
+    --local pillowmod = player:getModData();
+    local worldModData = getGameTime():getModData();
     print("initializing true random spawns mod");
-    pillowmod.settingsApplied = false;
-    pillowmod.cellListInitialized = false;
+    worldModData.settingsApplied = false;
+    worldModData.cellListInitialized = false;
 
     print("initalizing mod settings");
     intializeTrueRandomSpawnSettings();
@@ -617,8 +628,12 @@ local function initializeTrueRandomSpawn()
     Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
     Events.OnTick.Add(trueRandomSpawnsEventProcessor);
 
+end
 
-
+local function restartProcessing()
+    startTicks();
+    Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
+    Events.OnTick.Add(trueRandomSpawnsEventProcessor);    
 end
 
 local function intializeTrueRandomSpawnPlayerSettings()
@@ -636,6 +651,19 @@ local function intializeTrueRandomSpawnPlayerSettings()
     else end
 
 end 
+
+ 
+local function resetTrueRandomSpawnsPlayerSettings()
+    local player = getPlayer();
+    local pillowmod = player:getModData();
+    pillowmod.finalizedSpawn = false;
+    pillowmod.spawnCount = 0;
+    pillowmod.tick = 0;       
+    pillowmod.validSpawn = false; 
+    pillowmod.playerInitialized = true;
+    pillowmod.pendingTP = false;
+    restartProcessing();
+end
 
 
 
@@ -664,8 +692,13 @@ end
 Events.LoadGridsquare.Add(addBuildingList);
 Events.ReuseGridsquare.Add(removeBuildingList);
 
-Events.OnGameStart.Add(initializeTrueRandomSpawn); --required to reinitialize when starting a new game.
-Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings); 
+Events.OnGameTimeLoaded.Add(initializeTrueRandomSpawn); --required to reinitialize when starting a new game.
+--Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings); 
+Events.OnNewGame.Add(intializeTrueRandomSpawnPlayerSettings);
+Events.OnPlayerDeath.Add(resetTrueRandomSpawnsPlayerSettings);
+
+Events.OnCreatePlayer.Add(resetTrueRandomSpawnsPlayerSettings);
+Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings);
 
 --debug
 Events.OnKeyPressed.Add(debugSpawn);
