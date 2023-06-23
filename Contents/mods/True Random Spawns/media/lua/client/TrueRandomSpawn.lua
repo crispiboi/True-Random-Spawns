@@ -593,7 +593,7 @@ local function trueRandomSpawnsEventProcessor()
         Events.OnTick.Remove(processTicks);
         Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
         --06-14-2023 this logic seems incorrect but works. Maybe need to add the function instead of remove
-        Events.OnPlayerUpdate.Remove(validSpawnCleanup);
+        Events.OnPlayerUpdate.Add(validSpawnCleanup);
     elseif pillowmod.tick  > 0 and pillowmod.tick == 3 then
         print("TRS event processor : check valid spawn");
         Events.OnPlayerUpdate.Add(checkValidSpawn);
@@ -628,41 +628,53 @@ local function initializeTrueRandomSpawn()
     Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
     Events.OnTick.Add(trueRandomSpawnsEventProcessor);
 
+    Events.LoadGridsquare.Add(addBuildingList);
+    Events.ReuseGridsquare.Add(removeBuildingList);
+
 end
 
 local function restartProcessing()
+    print("TRS Event : restart processing.");
     startTicks();
     Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
     Events.OnTick.Add(trueRandomSpawnsEventProcessor);    
+    Events.LoadGridsquare.Add(addBuildingList);
+    Events.ReuseGridsquare.Add(removeBuildingList);
 end
 
 local function intializeTrueRandomSpawnPlayerSettings()
     local player = getPlayer();
     local pillowmod = player:getModData();
     if pillowmod.finalizedSpawn == true then
-        validSpawnCleanup(); 
-    elseif pillowmod.playerInitialized == nil then
+        return
+    elseif pillowmod.playerInitialized == nil or pillowmod.playerInitialized == false then
         pillowmod.spawnCount = 0;
         pillowmod.tick = 0;       
         pillowmod.validSpawn = false; 
         pillowmod.playerInitialized = true;
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
+        pillowmod.playerDied = false;
     else end
 
+    --2023-06-22 handles restarting functions if player has started a new game
+    if pillowmod.playerDied == true then
+        restartProcessing();
+    else end
 end 
 
  
 local function resetTrueRandomSpawnsPlayerSettings()
+    print("TRS event : reset player settings");
     local player = getPlayer();
     local pillowmod = player:getModData();
     pillowmod.finalizedSpawn = false;
-    pillowmod.spawnCount = 0;
+    pillowmod.spawnCount = 10;
     pillowmod.tick = 0;       
     pillowmod.validSpawn = false; 
-    pillowmod.playerInitialized = true;
+    pillowmod.playerInitialized = false;
     pillowmod.pendingTP = false;
-    restartProcessing();
+    pillowmod.playerDied = true;
 end
 
 
@@ -689,16 +701,20 @@ end
 
 --Events.OnPostFloorLayerDraw.Add(countFloorLayerDraw);
 
-Events.LoadGridsquare.Add(addBuildingList);
-Events.ReuseGridsquare.Add(removeBuildingList);
+--2023-06-22 remove gridsquare functions from here and turn them on during initilization
+--Events.LoadGridsquare.Add(addBuildingList);
+--Events.ReuseGridsquare.Add(removeBuildingList);
 
 Events.OnGameTimeLoaded.Add(initializeTrueRandomSpawn); --required to reinitialize when starting a new game.
---Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings); 
-Events.OnNewGame.Add(intializeTrueRandomSpawnPlayerSettings);
+
+
 Events.OnPlayerDeath.Add(resetTrueRandomSpawnsPlayerSettings);
 
-Events.OnCreatePlayer.Add(resetTrueRandomSpawnsPlayerSettings);
+Events.OnPlayerDeath.Add(function() isInitialized = false end)
+
+--Initializing settings on create player seems to be the best way
 Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings);
+Events.OnNewGame.Add(intializeTrueRandomSpawnPlayerSettings);
 
 --debug
 Events.OnKeyPressed.Add(debugSpawn);
