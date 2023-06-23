@@ -26,6 +26,7 @@ local function intializeTrueRandomSpawnSettings()
     worldModData.optionWildCamp = false;
     worldModData.optionWildDeep = false;
     worldModData.optionAnywhere = false;
+    worldModData.optionLocation = "Any Location"
 
     pillowmod.optionSelection = SandboxVars.TRS.optionSelection;
     print("true random spawns sandbox option selection :" ,pillowmod.optionSelection);
@@ -44,6 +45,19 @@ local function intializeTrueRandomSpawnSettings()
         worldModData.optionAnywhere = true;
     end 
 
+    if SandboxVars.TRS.locationFilter == 1 then worldModData.optionLocation = "Any Location";
+    elseif SandboxVars.TRS.locationFilter == 2 then worldModData.optionLocation = "Doe Valley";
+    elseif SandboxVars.TRS.locationFilter == 3 then worldModData.optionLocation = "Dixie";
+    elseif SandboxVars.TRS.locationFilter == 4 then worldModData.optionLocation = "Fallas Lake";
+    elseif SandboxVars.TRS.locationFilter == 5 then worldModData.optionLocation = "Louisville";
+    elseif SandboxVars.TRS.locationFilter == 6 then worldModData.optionLocation = "March Ridge";
+    elseif SandboxVars.TRS.locationFilter == 7 then worldModData.optionLocation = "Muldraugh";
+    elseif SandboxVars.TRS.locationFilter == 8 then worldModData.optionLocation = "Riverside";
+    elseif SandboxVars.TRS.locationFilter == 9 then worldModData.optionLocation = "Rosewood" ;   
+    elseif SandboxVars.TRS.locationFilter == 10 then worldModData.optionLocation = "Valley Station";
+    elseif SandboxVars.TRS.locationFilter == 11 then worldModData.optionLocation = "Westpoint";
+    else worldModData.optionLocation = "Any Location" end
+
     print("===============true random spawns debug options===============")
     print("optionInBuilding = ",  worldModData.optionInBuilding);
     print("optionNearCiv = ", worldModData.optionNearCiv);
@@ -51,6 +65,7 @@ local function intializeTrueRandomSpawnSettings()
     print("optionWildCamp = ", worldModData.optionWildCamp);
     print("optionWildDeep = ", worldModData.optionWildDeep);
     print("optionAnywhere = ", worldModData.optionAnywhere);
+    print("locationFilter = ", worldModData.optionLocation);
 
     worldModData.settingsApplied = true;
 
@@ -63,6 +78,7 @@ local function filterCellPickList(filterTable)
     local worldModData = getGameTime():getModData()
     local i = 1;
 
+    --option pass of filtering
     while i <= #filterTable do
         --handles in building or near civ, building loop is later
         --nearciv = 1, 0 no 
@@ -100,6 +116,22 @@ local function filterCellPickList(filterTable)
             i = i + 1;
         end
     end
+
+    local i = 1;
+    
+    --location pass of filtering
+    while i <= #filterTable do
+        if worldModData.optionLocation == "Any Location" then return
+        elseif worldModData.optionLocation ~= worldModData.cellList[i].poi then
+            print("removing:")
+            print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
+            print("poi:" .. worldModData.cellList[i].poi);
+            table.remove(filterTable,i);
+        else
+            i = i + 1;
+        end 
+    end
+
     return filterTable; 
 end 
 
@@ -592,6 +624,8 @@ function trueRandomSpawnsEventProcessor()
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
         Events.OnTick.Remove(processTicks);
         Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
+        player:setInvisible(false);
+        player:setZombiesDontAttack(false);
         --06-14-2023 this logic seems incorrect but works. Maybe need to add the function instead of remove
         Events.OnPlayerUpdate.Add(validSpawnCleanup);
     elseif pillowmod.tick  > 0 and pillowmod.tick == 3 then
@@ -660,6 +694,8 @@ function intializeTrueRandomSpawnPlayerSettings()
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
         pillowmod.playerDied = false;
+        player:setInvisible(true);
+        player:setZombiesDontAttack(true);
     elseif  pillowmod.playerInitialized == false then
         print("TRS Event : player initalized = false, game player setting initialization")
         pillowmod.spawnCount = 0;
@@ -668,7 +704,9 @@ function intializeTrueRandomSpawnPlayerSettings()
         pillowmod.playerInitialized = true;
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
-        pillowmod.playerDied = false;      
+        pillowmod.playerDied = false;  
+        player:setInvisible(true);
+        player:setZombiesDontAttack(true);    
         restartProcessing();  
     end
 
