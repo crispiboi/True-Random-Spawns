@@ -592,6 +592,8 @@ function trueRandomSpawnsEventProcessor()
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
         Events.OnTick.Remove(processTicks);
         Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
+        player:setInvisible(false);
+        player:setZombiesDontAttack(false);
         --06-14-2023 this logic seems incorrect but works. Maybe need to add the function instead of remove
         Events.OnPlayerUpdate.Add(validSpawnCleanup);
     elseif pillowmod.tick  > 0 and pillowmod.tick == 3 then
@@ -660,6 +662,8 @@ function intializeTrueRandomSpawnPlayerSettings()
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
         pillowmod.playerDied = false;
+        player:setInvisible(true);
+        player:setZombiesDontAttack(true);
     elseif  pillowmod.playerInitialized == false then
         print("TRS Event : player initalized = false, game player setting initialization")
         pillowmod.spawnCount = 0;
@@ -668,7 +672,9 @@ function intializeTrueRandomSpawnPlayerSettings()
         pillowmod.playerInitialized = true;
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
-        pillowmod.playerDied = false;      
+        pillowmod.playerDied = false;  
+        player:setInvisible(true);
+        player:setZombiesDontAttack(true);    
         restartProcessing();  
     end
 
