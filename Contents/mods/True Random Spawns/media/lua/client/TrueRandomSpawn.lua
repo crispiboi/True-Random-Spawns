@@ -164,7 +164,7 @@ end
 
 local function teleportPlayer()
 
-    local player = getSpecificPlayer(0);
+    local player = getPlayer();
     local pillowmod = player:getModData();
 
 
@@ -297,7 +297,7 @@ local function getSquareInClosestBuilding(character)
     return calcClosestBuilding(sourcesq);
 end
 
-local function removeNearbyZombies()
+function removeNearbyZombies()
     local player = getPlayer();
     local zombies = getCell():getObjectList()
     if zombies == nil
@@ -318,7 +318,7 @@ local function removeNearbyZombies()
 end
 
 
-local function processTicks()
+function processTicks()
 
     local player = getPlayer();
     local pillowmod = player:getModData();
@@ -344,7 +344,7 @@ end
 
 
 --picks a spawn point based on the filtered cell pick list
-local function pickSpawnTarget()
+function pickSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
     local worldModData = getGameTime():getModData()
@@ -438,7 +438,7 @@ end
 
 --adjust outdoor spawn, called when it is on water or in a bad room
 --function sweeps back and forth
-local function adjustOutdoorSpawnTarget()
+function adjustOutdoorSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
 
@@ -457,7 +457,7 @@ end
 
 --adjust indoor spawn, checking if there are buildings nearby or not
 --they are are not just pick a new spawn target
-local function adjustIndoorSpawnTarget()
+function adjustIndoorSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
     if isBuildingListEmpty() == true then 
@@ -478,7 +478,7 @@ local function adjustIndoorSpawnTarget()
 end
 
 --handles adjustments to spawn location
-local function adjustSpawnTarget()
+function adjustSpawnTarget()
     local player = getPlayer();
     local pillowmod = player:getModData();
     local worldModData = getGameTime():getModData()
@@ -516,7 +516,7 @@ end
 --3.a current ones found in testing "empty" and "traincar" are problematic
 --4. player wants to spawn in a building, and is in on. Check for valid room based on 3a.
 --5. anything else is considered invalid
-local function checkValidSpawn()
+function checkValidSpawn()
     local player = getPlayer();
     local pillowmod = player:getModData();
     local playersq = player:getCurrentSquare();
@@ -555,7 +555,7 @@ local function checkValidSpawn()
 end
 
 --cleans up all of the helper functions running to reduce lag
-local function validSpawnCleanup()
+function validSpawnCleanup()
         print("process valid spawn cleanup functions");
         local player = getPlayer();
         local pillowmod = player:getModData();
@@ -579,7 +579,7 @@ end
 --2. call for check valid spawn
 --3. call for adjusting an invalid spawn
 --4. call for teleport function to adjusted spawn point
-local function trueRandomSpawnsEventProcessor()
+function trueRandomSpawnsEventProcessor()
     --first spawn requires tp , force first spawn with init validspawn false
     --validate spot
     --if valid stop
@@ -610,15 +610,15 @@ end
 
 
 --initiate the mod itself, sets up the actual settings which feed into the filtering functions
-local function initializeTrueRandomSpawn()
+function initializeTrueRandomSpawn()
     --local player = getPlayer();
     --local pillowmod = player:getModData();
     local worldModData = getGameTime():getModData();
-    print("initializing true random spawns mod");
+    print("TRS event : initializing true random spawns mod");
     worldModData.settingsApplied = false;
     worldModData.cellListInitialized = false;
 
-    print("initalizing mod settings");
+    print("TRS event : initalizing true random spawns  mod settings");
     intializeTrueRandomSpawnSettings();
     initializeCellPickList();
     --pickSpawnTarget();
@@ -632,22 +632,27 @@ local function initializeTrueRandomSpawn()
     Events.ReuseGridsquare.Add(removeBuildingList);
 
 end
-
-local function restartProcessing()
+ 
+function restartProcessing()
     print("TRS Event : restart processing.");
     startTicks();
+    intializeTrueRandomSpawnSettings();
+    initializeCellPickList();
     Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
     Events.OnTick.Add(trueRandomSpawnsEventProcessor);    
     Events.LoadGridsquare.Add(addBuildingList);
     Events.ReuseGridsquare.Add(removeBuildingList);
 end
 
-local function intializeTrueRandomSpawnPlayerSettings()
+function intializeTrueRandomSpawnPlayerSettings()
+    print("TRS Event : initalize player settings")
     local player = getPlayer();
     local pillowmod = player:getModData();
-    if pillowmod.finalizedSpawn == true then
+    if pillowmod.playerInitialized == true then
         return
-    elseif pillowmod.playerInitialized == nil or pillowmod.playerInitialized == false then
+    elseif 
+        pillowmod.playerInitialized == nil  then
+        print("TRS Event : new game player setting initialization")
         pillowmod.spawnCount = 0;
         pillowmod.tick = 0;       
         pillowmod.validSpawn = false; 
@@ -655,31 +660,31 @@ local function intializeTrueRandomSpawnPlayerSettings()
         pillowmod.pendingTP = false;
         pillowmod.finalizedSpawn = false;
         pillowmod.playerDied = false;
-    else end
+    elseif  pillowmod.playerInitialized == false then
+        print("TRS Event : player initalized = false, game player setting initialization")
+        pillowmod.spawnCount = 0;
+        pillowmod.tick = 0;       
+        pillowmod.validSpawn = false; 
+        pillowmod.playerInitialized = true;
+        pillowmod.pendingTP = false;
+        pillowmod.finalizedSpawn = false;
+        pillowmod.playerDied = false;      
+        restartProcessing();  
+    end
 
-    --2023-06-22 handles restarting functions if player has started a new game
-    if pillowmod.playerDied == true then
-        restartProcessing();
-    else end
 end 
 
  
-local function resetTrueRandomSpawnsPlayerSettings()
+function resetTrueRandomSpawnsPlayerSettings()
     print("TRS event : reset player settings");
     local player = getPlayer();
     local pillowmod = player:getModData();
-    pillowmod.finalizedSpawn = false;
-    pillowmod.spawnCount = 10;
-    pillowmod.tick = 0;       
-    pillowmod.validSpawn = false; 
     pillowmod.playerInitialized = false;
-    pillowmod.pendingTP = false;
-    pillowmod.playerDied = true;
 end
 
 
 
-local function debugSpawn(key)
+function debugSpawn(key)
     if key == Keyboard.KEY_F9  then
         print("debug select new spawn");
         local player = getPlayer();
@@ -708,13 +713,14 @@ end
 Events.OnGameTimeLoaded.Add(initializeTrueRandomSpawn); --required to reinitialize when starting a new game.
 
 
-Events.OnPlayerDeath.Add(resetTrueRandomSpawnsPlayerSettings);
 
-Events.OnPlayerDeath.Add(function() isInitialized = false end)
 
 --Initializing settings on create player seems to be the best way
 Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings);
 Events.OnNewGame.Add(intializeTrueRandomSpawnPlayerSettings);
+
+Events.OnPlayerDeath.Add(resetTrueRandomSpawnsPlayerSettings);
+
 
 --debug
 Events.OnKeyPressed.Add(debugSpawn);
