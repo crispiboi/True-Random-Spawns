@@ -1,25 +1,12 @@
 Sandbox_EN = {
     Sandbox_TRS = "True Random Spawns",
 
-    Sandbox_TRS_SelectionFilter = "Difficulty",
+    Sandbox_TRS_SelectionFilter = "True Random Spawns Option",
     Sandbox_TRS_SelectionValues_option1 = "In a Building",
     Sandbox_TRS_SelectionValues_option2 = "Near Civilization"
     Sandbox_TRS_SelectionValues_option3 = "Near a Road",
     Sandbox_TRS_SelectionValues_option4 = "Wildnerness Near a Camp",
     Sandbox_TRS_SelectionValues_option5 = "Wildnerness Deep",
     Sandbox_TRS_SelectionValues_option6 = "Anywhere",
-
-    Sandbox_TRS_LocationFilter = "Location",
-    Sandbox_TRS_LocationValues_option1 = "Any Location",
-    Sandbox_TRS_LocationValues_option2 = "Doe Valley",
-    Sandbox_TRS_LocationValues_option3 = "Dixie",
-    Sandbox_TRS_LocationValues_option4 = "Fallas Lake",
-    Sandbox_TRS_LocationValues_option5 = "Louisville",
-    Sandbox_TRS_LocationValues_option6 = "March Ridge",
-    Sandbox_TRS_LocationValues_option7 = "Muldraugh",
-    Sandbox_TRS_LocationValues_option8 = "Riverside",
-    Sandbox_TRS_LocationValues_option9 = "Rosewood",
-    Sandbox_TRS_LocationValues_option10 = "Valley Station",
-    Sandbox_TRS_LocationValues_option11 = "Westpoint",
 
 }

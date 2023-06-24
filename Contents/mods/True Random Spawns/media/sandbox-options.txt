@@ -10,12 +10,3 @@ option TRS.optionSelection
     valueTranslation = TRS_SelectionValues,
 }
 
-option TRS.locationFilter
-{
-    type = enum,
-    numValues = 11,
-    default = 1,
-    page = TRS,
-    translation = TRS_LocationFilter,
-    valueTranslation = TRS_LocationValues,
-}
