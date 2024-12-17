@@ -727,9 +727,6 @@ end
 
 Events.OnGameTimeLoaded.Add(initializeTrueRandomSpawn); --required to reinitialize when starting a new game.
 
-
-
-
 --Initializing settings on create player seems to be the best way
 Events.OnCreatePlayer.Add(intializeTrueRandomSpawnPlayerSettings);
 Events.OnNewGame.Add(intializeTrueRandomSpawnPlayerSettings);
