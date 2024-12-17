@@ -72,6 +72,7 @@ local function filterCellPickList(filterTable)
             print("removing:")
             print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
             print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
+            print("poi:" .. worldModData.cellList[i].poi);
             table.remove(filterTable, i);
         --handles near road 
         elseif worldModData.optionNearRoad == true and filterTable[i].nearRoad == 0 then
@@ -79,14 +80,16 @@ local function filterCellPickList(filterTable)
             print("removing:")
             print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
             print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
+            print("poi:" .. worldModData.cellList[i].poi);
             table.remove(filterTable, i);
         --handles near camp
         elseif worldModData.optionWildCamp == true 
-            and (filterTable[i].poi ~= "Cabin" or filterTable[i].poi ~= "Camp")  then 
+            and (filterTable[i].poi ~= "Cabin" and filterTable[i].poi ~= "Camp")  then 
             --print("removing record from pick list " .. filterTable[i].xcell .. ",".. filterTable[i].ycell );
             print("removing:")
             print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
             print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);
+            print("poi:" .. worldModData.cellList[i].poi);
             table.remove(filterTable, i);   
         --handles deep woods
         elseif worldModData.optionWildDeep == true and filterTable[i].nearRoad == 1 and filterTable[i].civDist <= 3
@@ -95,6 +98,7 @@ local function filterCellPickList(filterTable)
             print("removing:")
             print("cell xy:" .. worldModData.cellList[i].xcell .. "," .. worldModData.cellList[i].ycell);
             print("nearRoad:" .. worldModData.cellList[i].nearRoad .. " ,  nearCiv:" .. worldModData.cellList[i].nearCiv .. ", civDist:".. worldModData.cellList[i].civDist);         
+            print("poi:" .. worldModData.cellList[i].poi);
             table.remove(filterTable, i);               
         else
             i = i + 1;
@@ -562,14 +566,15 @@ function validSpawnCleanup()
         --Events.OnTick.Remove(processTicks);
         --Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
         Events.OnTick.Remove(teleportPlayer);
-        Events.OnPlayerUpdate.Remove(validateSpawn);        
+        Events.OnPlayerUpdate.Remove(validateSpawn); 
+        Events.OnPlayerUpdate.Remove(checkValidSpawn);       
         Events.OnPlayerUpdate.Remove(adjustSpawnTarget);
         Events.OnPlayerUpdate.Remove(adjustOutdoorSpawnTarget);
         Events.LoadGridsquare.Remove(addBuildingList);
         Events.ReuseGridsquare.Remove(removeBuildingList);
         Events.OnPostFloorLayerDraw.Remove(FloorDrawCheck);
         pillowmod.pendingTP = false; 
-        pillowmod.finalizedSpawn = false;
+        pillowmod.finalizedSpawn = true;
         Events.OnPlayerUpdate.Remove(validSpawnCleanup)
 end 
 
@@ -590,8 +595,8 @@ function trueRandomSpawnsEventProcessor()
     if pillowmod.validSpawn == true then
         print("TRS event processor :  spawn is valid");
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
-        Events.OnTick.Remove(processTicks);
         Events.OnTick.Remove(trueRandomSpawnsEventProcessor);
+        stopTicks(); --Events.OnTick.Remove(processTicks);
         player:setInvisible(false);
         player:setZombiesDontAttack(false);
         --06-14-2023 this logic seems incorrect but works. Maybe need to add the function instead of remove
@@ -613,8 +618,8 @@ end
 
 --initiate the mod itself, sets up the actual settings which feed into the filtering functions
 function initializeTrueRandomSpawn()
-    --local player = getPlayer();
-    --local pillowmod = player:getModData();
+    local player = getPlayer();
+    local pillowmod = player:getModData();
     local worldModData = getGameTime():getModData();
     print("TRS event : initializing true random spawns mod");
     worldModData.settingsApplied = false;
@@ -622,6 +627,8 @@ function initializeTrueRandomSpawn()
 
     print("TRS event : initalizing true random spawns  mod settings");
     intializeTrueRandomSpawnSettings();
+    if  pillowmod.finalizedSpawn == nil then
+    elseif   pillowmod.finalizedSpawn == true then return else end
     initializeCellPickList();
     --pickSpawnTarget();
     --start tick processing, and event processing
@@ -695,12 +702,14 @@ function debugSpawn(key)
         print("debug select new spawn");
         local player = getPlayer();
         local pillowmod = player:getModData();
-        pillowmod.validSpawn = false; 
-        pillowmod.spawnCount = 10;
+        pillowmod.validSpawn = false;
+        pillowmod.finalizedSpawn = false; 
+        pillowmod.spawnCount = 0;
         startTicks();
+        Events.OnPostFloorLayerDraw.Add(FloorDrawCheck);
+        Events.OnTick.Add(trueRandomSpawnsEventProcessor);
         Events.LoadGridsquare.Add(addBuildingList);
         Events.ReuseGridsquare.Add(removeBuildingList);
-        Events.OnTick.Add(trueRandomSpawnsEventProcessor);
     elseif key == Keyboard.KEY_DELETE then
         print("debug remove zombies");
         Events.OnPlayerUpdate.Add(removeNearbyZombies);
